@@ -339,90 +339,96 @@ vector<string> split(string str) {
 	return tokens;
 }
 
-string result(vector<string> tokens, IDTable * vars) {
-	stack <string> elements;
+string result(vector<string> tokens, IDTable * vars, stack <string> * elements) {
 	string temp;
 	float rvalue;
 	float lvalue;
 	for each (string token in tokens) {
 		if (token == "+") {
-			if (vars->searchElement(elements.top()))
-				rvalue = atof(vars->getValue(elements.top()).c_str());
+			if (vars->searchElement(elements->top()))
+				rvalue = atof(vars->getValue(elements->top()).c_str());
 			else
-				rvalue = atof(elements.top().c_str());
-			elements.pop();
-			if (vars->searchElement(elements.top()))
-				lvalue = atof(vars->getValue(elements.top()).c_str());
+				rvalue = atof(elements->top().c_str());
+			elements->pop();
+			if (vars->searchElement(elements->top()))
+				lvalue = atof(vars->getValue(elements->top()).c_str());
 			else
-				lvalue = atof(elements.top().c_str());
-			elements.pop();
+				lvalue = atof(elements->top().c_str());
+			elements->pop();
 			temp = to_string(lvalue + rvalue);
-			elements.push(temp);
+			elements->push(temp);
 		}
 		else if (token == "-") {
-			if (vars->searchElement(elements.top()))
-				rvalue = atof(vars->getValue(elements.top()).c_str());
+			if (vars->searchElement(elements->top()))
+				rvalue = atof(vars->getValue(elements->top()).c_str());
 			else
-				rvalue = atof(elements.top().c_str());
-			elements.pop();
-			if (vars->searchElement(elements.top()))
-				lvalue = atof(vars->getValue(elements.top()).c_str());
+				rvalue = atof(elements->top().c_str());
+			elements->pop();
+			if (vars->searchElement(elements->top()))
+				lvalue = atof(vars->getValue(elements->top()).c_str());
 			else
-				lvalue = atof(elements.top().c_str());
-			elements.pop();
+				lvalue = atof(elements->top().c_str());
+			elements->pop();
 			temp = to_string(lvalue - rvalue);
-			elements.push(temp);
+			elements->push(temp);
 		}
 		else if (token == "*") {
-			if (vars->searchElement(elements.top()))
-				rvalue = atof(vars->getValue(elements.top()).c_str());
+			if (vars->searchElement(elements->top()))
+				rvalue = atof(vars->getValue(elements->top()).c_str());
 			else
-				rvalue = atof(elements.top().c_str());
-			elements.pop();
-			if (vars->searchElement(elements.top()))
-				lvalue = atof(vars->getValue(elements.top()).c_str());
+				rvalue = atof(elements->top().c_str());
+			elements->pop();
+			if (vars->searchElement(elements->top()))
+				lvalue = atof(vars->getValue(elements->top()).c_str());
 			else
-				lvalue = atof(elements.top().c_str());
-			elements.pop();
+				lvalue = atof(elements->top().c_str());
+			elements->pop();
 			temp = to_string(lvalue * rvalue);
-			elements.push(temp);
+			elements->push(temp);
 		}
 		else if (token == "/") {
-			if (vars->searchElement(elements.top()))
-				rvalue = atof(vars->getValue(elements.top()).c_str());
+			if (vars->searchElement(elements->top()))
+				rvalue = atof(vars->getValue(elements->top()).c_str());
 			else
-				rvalue = atof(elements.top().c_str());
-			elements.pop();
-			if (vars->searchElement(elements.top()))
-				lvalue = atof(vars->getValue(elements.top()).c_str());
+				rvalue = atof(elements->top().c_str());
+			elements->pop();
+			if (vars->searchElement(elements->top()))
+				lvalue = atof(vars->getValue(elements->top()).c_str());
 			else
-				lvalue = atof(elements.top().c_str());
-			elements.pop();
+				lvalue = atof(elements->top().c_str());
+			elements->pop();
 			temp = to_string(lvalue / rvalue);
-			elements.push(temp);
+			elements->push(temp);
 		}
 		else if (token == "=") {
-			rvalue = atof(elements.top().c_str());
-			elements.pop();
-			temp = elements.top();
+			rvalue = atof(elements->top().c_str());
+			elements->pop();
+			temp = elements->top();
 			vars->addElement(temp, "float", to_string(rvalue));
 		}
 		else {
-			elements.push(token);
+			elements->push(token);
 		}
 	}
-	return elements.top();
+	return elements->top();
 }
 
 int main() {
 	string input = "";
 	vector <string> tokens;
+	stack <string> elements;
 	IDTable * vars = new IDTable();
 	cout << "---==Hello. It is  stack calculator.==---\n Enter your expressions now: " << endl;
 	while (input != "exit") {
 		getline(cin, input);
+		if (input == "print") {
+			if (vars->searchElement(elements.top()))
+				continue;
+			cout << "Stack top: " << elements.top();
+			continue;
+		}
 		tokens = split(input);
-		cout << "Result: " << result(tokens, vars) << endl;
+		cout << "Result: " << result(tokens, vars, &elements) << endl;
 	}
 	return 0;
 }
