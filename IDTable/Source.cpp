@@ -4,8 +4,16 @@
 #include <stack>
 #include <sstream>
 #include <iterator>
+#include <exception>
+#include <regex>
 
 using namespace std;
+
+class InputException : public exception {
+	virtual const char * what() const throw() {
+		return "Invalid input!";
+	}
+};
 
 class Statement {
 public:
@@ -203,10 +211,17 @@ void IDTable::addElement(string name, string type, string value) {
 				this->elements[valueHash]->addOtherName(value, name);
 	}
 	if (this->elements[hash]) {
-		this->elements[hash]->addToOthers(temp);
+		if (this->elements[hash]->getID() == name)
+			elements[hash]->setValue(value);
+		else if (this->elements[hash]->hasID(name))
+			this->elements[hash]->setOtherValue(name, value);
+		else
+			this->elements[hash]->addToOthers(temp);
 	}
 	else
 		this->elements[hash] = temp;
+	
+	
 }
 
 void IDTable::editElement(string name, string newValue) {
@@ -401,11 +416,19 @@ string result(vector<string> tokens, IDTable * vars, stack <string> * elements) 
 			elements->push(temp);
 		}
 		else if (token == "=") {
-			rvalue = atof(elements->top().c_str());
+			if (vars->searchElement(elements->top()))
+				rvalue = atof(vars->getValue(elements->top()).c_str());
+			else
+				rvalue = atof(elements->top().c_str());
 			elements->pop();
-			temp = elements->top();
-			vars->addElement(temp, "float", to_string(rvalue));
+			if (vars->searchElement(elements->top()))
+				vars->addElement(elements->top(), "float", to_string(rvalue));
+			else {
+				temp = elements->top();
+				vars->addElement(temp, "float", to_string(rvalue));
+			}
 		}
+
 		else {
 			elements->push(token);
 		}
@@ -417,6 +440,7 @@ int main() {
 	string input = "";
 	vector <string> tokens;
 	stack <string> elements;
+	regex http("(*.*)");
 	IDTable * vars = new IDTable();
 	cout << "---==Hello. It is  stack calculator.==---\n Enter your expressions now: " << endl;
 	while (input != "exit") {
@@ -427,8 +451,10 @@ int main() {
 			cout << "Stack top: " << elements.top();
 			continue;
 		}
-		tokens = split(input);
-		cout << "Result: " << result(tokens, vars, &elements) << endl;
+		else {
+			tokens = split(input);
+			cout << "Result: " << result(tokens, vars, &elements) << endl;
+		}
 	}
 	return 0;
 }
