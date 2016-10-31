@@ -9,11 +9,11 @@
 
 using namespace std;
 
-class InputException : public exception {
-	virtual const char * what() const throw() {
-		return "Invalid input!";
-	}
-};
+//class InputException : public exception {
+//	virtual const char * what() const throw() {
+//		return "Invalid input!";
+//	}
+//};
 
 class Statement {
 public:
@@ -176,8 +176,8 @@ void IDTable::addElement(string name, string type, string value) {
 	}
 	else
 		this->elements[hash] = temp;
-	
-	
+
+
 }
 
 void IDTable::editElement(string name, string newValue) {
@@ -310,12 +310,31 @@ vector<string> split(string str) {
 	return tokens;
 }
 
+vector<string> split(string str, string pattern) {
+	istringstream iss(str);
+	istringstream space(pattern);
+	vector<string> tokens{ istream_iterator<string>{iss}, istream_iterator<string>{space} };
+	return tokens;
+}
+
 bool isColor(string str) {
-	return false;
+	vector<string> parts = split(str);
+	if (parts[0] != "color")
+		return false;
+	regex re("\(\\d?,\\d?,\\d?\)");
+	if (!regex_search(parts[2], re))
+		return false;
+	return true;
 }
 
 bool isDomain(string str) {
-	return false;
+	vector<string> parts = split(str);
+	if (parts[0] != "domain")
+		return false;
+	vector<string> domain = split(parts[2], ".");
+	if (domain.size() > 5 || domain.size() < 2)
+		return false;
+	return true;
 }
 
 string result(vector<string> tokens, IDTable * vars, stack <string> * elements) {
@@ -404,25 +423,35 @@ int main() {
 	string input = "";
 	vector <string> tokens;
 	stack <string> elements;
-	regex http("(*.*)");
 	IDTable * vars = new IDTable();
 	cout << "---==Hello. It is  stack calculator.==---\n Enter your expressions now: " << endl;
 	while (input != "exit") {
 		getline(cin, input);
-		if (input == "print") {
+		if (input == "")
+			continue;
+		else if (input == "print") {
+			if (elements.size() < 0) {
+				cout << "No elements." << endl;
+				continue;
+			}
 			if (vars->searchElement(elements.top()))
 				continue;
-			cout << "Stack top: " << elements.top();
+			cout << "Stack top: " << elements.top() << endl;
 			continue;
 		}
-		else if (isColor(input)){
-			vector<string> parsed = split(input);
-			vars->addElement(parsed[1], parsed[0], parsed[2]);
+		else if (input == "pop") {
+			if (elements.size() < 0) {
+				cout << "No elements." << endl;
+				continue;
+			}
+			elements.pop();
 		}
 		else if (vars->searchElement(input)) {
+			continue;
+		}
+		else if (isColor(input) || isDomain(input)) {
 			vector<string> parsed = split(input);
 			vars->addElement(parsed[1], parsed[0], parsed[2]);
-			break;
 		}
 		else {
 			tokens = split(input);
