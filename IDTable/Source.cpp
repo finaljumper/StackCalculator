@@ -20,63 +20,19 @@ public:
 	Statement() {}
 
 	Statement(string ID, string type, string value) {
-		int typeID;
-		if (type.compare("int") == 0)
-			typeID = 1;
-		else if (type.compare("float") == 0)
-			typeID = 2;
-		else if (type.compare("double") == 0)
-			typeID = 3;
-		else if (type.compare("char") == 0)
-			typeID = 4;
-		else if (type.compare("bool") == 0)
-			typeID = 5;
-		else if (type.compare("long") == 0)
-			typeID = 6;
-		else if (type.compare("short") == 0)
-			typeID = 7;
-		else
-			typeID = 0;
 		this->ID.push_back(ID);
-		this->type = typeID;
+		this->type = type;
 		this->value = value;
 	}
 
 	virtual ~Statement() {
 		this->ID.clear();
 		this->value.clear();
-		this->type = NULL;
+		this->type.clear();
 	}
 
 	void print() {
-		string varType;
-		switch (this->type) {
-		case 1:
-			varType = "int";
-			break;
-		case 2:
-			varType = "float";
-			break;
-		case 3:
-			varType = "double";
-			break;
-		case 4:
-			varType = "char";
-			break;
-		case 5:
-			varType = "bool";
-			break;
-		case 6:
-			varType = "long";
-			break;
-		case 7:
-			varType = "short";
-			break;
-		default:
-			varType = "unknown";
-			break;
-		}
-		cout << varType << " " << this->ID.at(0) << " = " << this->value << endl;
+		cout << this->type << " " << this->ID.at(0) << " = " << this->value << endl;
 		cout << "Linked: ";
 		for (int i = 0; i < this->ID.size(); i++) {
 			cout << this->ID.at(i);
@@ -177,7 +133,7 @@ public:
 
 private:
 	vector <string> ID;
-	int type;  //types 1:int 2:float 3:double 4:char 5:bool 6:long 7:short
+	string type;
 	string value;
 	vector <Statement> others;
 };
@@ -354,6 +310,14 @@ vector<string> split(string str) {
 	return tokens;
 }
 
+bool isColor(string str) {
+	return false;
+}
+
+bool isDomain(string str) {
+	return false;
+}
+
 string result(vector<string> tokens, IDTable * vars, stack <string> * elements) {
 	string temp;
 	float rvalue;
@@ -450,6 +414,15 @@ int main() {
 				continue;
 			cout << "Stack top: " << elements.top();
 			continue;
+		}
+		else if (isColor(input)){
+			vector<string> parsed = split(input);
+			vars->addElement(parsed[1], parsed[0], parsed[2]);
+		}
+		else if (vars->searchElement(input)) {
+			vector<string> parsed = split(input);
+			vars->addElement(parsed[1], parsed[0], parsed[2]);
+			break;
 		}
 		else {
 			tokens = split(input);
