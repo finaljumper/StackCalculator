@@ -331,8 +331,12 @@ bool isDomain(string str) {
 	vector<string> parts = split(str);
 	if (parts[0] != "domain")
 		return false;
-	vector<string> domain = split(parts[2], ".");
-	if (domain.size() > 5 || domain.size() < 2)
+	int count = 0;
+	for each(char c in parts[2]) {
+		if (c == '.')
+			count++;
+	}
+	if (count > 4 || count < 1)
 		return false;
 	return true;
 }
